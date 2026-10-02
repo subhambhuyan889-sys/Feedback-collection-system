@@ -1,10 +1,10 @@
-const express = require("express");
-const { createForm, listForms } = require("../controllers/formController");
-const { protect } = require("../middleware/auth");
-
-const router = express.Router();
-
-router.get("/", protect, listForms);
-router.post("/", protect, createForm);
-
-module.exports = router;
+const express=require("express");
+const {createForm,listForms,getForm,updateForm,deleteForm}=require("../controllers/formController");
+const {protect}=require("../middleware/auth");
+const router=express.Router();
+router.get("/",protect,listForms);
+router.post("/",protect,createForm);
+router.get("/:id",protect,getForm);
+router.put("/:id",protect,updateForm);
+router.delete("/:id",protect,deleteForm);
+module.exports=router;
