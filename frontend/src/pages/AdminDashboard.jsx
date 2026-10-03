@@ -1,0 +1,9 @@
+import { useEffect,useState } from "react";
+import { apiRequest } from "../services/api";
+export default function AdminDashboard(){
+ const [responses,setResponses]=useState([]),[forms,setForms]=useState([]),[error,setError]=useState("");
+ useEffect(()=>{Promise.all([apiRequest("/forms",{token:localStorage.getItem("token")}),apiRequest("/feedback",{token:localStorage.getItem("token")})]).then(([a,b])=>{setForms(a.forms||[]);setResponses(b.responses||[])}).catch(e=>setError(e.message));},[]);
+ const ratings=responses.flatMap(r=>Object.values(r.answers||{}).filter(v=>typeof v==="number"&&v>=1&&v<=5));
+ const avg=ratings.length?(ratings.reduce((a,b)=>a+b,0)/ratings.length).toFixed(1):"—";
+ return <main className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8"><div className="mx-auto max-w-6xl"><h1 className="text-3xl font-bold">Admin Dashboard</h1><p className="mt-1 text-sm text-slate-500">Feedback activity overview.</p><div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{[["Total Forms",forms.length],["Total Responses",responses.length],["Active Forms",forms.filter(f=>f.isActive).length],["Average Rating",avg]].map(([l,v])=><div key={l} className="rounded-2xl bg-white p-5 shadow-sm"><p className="text-sm text-slate-500">{l}</p><p className="mt-2 text-3xl font-bold">{v}</p></div>)}</div>{error&&<p className="mt-4 text-red-600">{error}</p>}<section className="mt-6 rounded-2xl bg-white p-6 shadow-sm"><h2 className="text-lg font-semibold">Recent Responses</h2><div className="mt-4 space-y-3">{responses.slice(0,8).map(r=><div key={r._id} className="flex justify-between rounded-xl border p-4"><span>{r.form?.title||"Feedback"}</span><span className="text-sm text-slate-500">{new Date(r.createdAt).toLocaleString()}</span></div>)}{!responses.length&&<p className="text-slate-500">No responses yet.</p>}</div></section></div></main>;
+}
