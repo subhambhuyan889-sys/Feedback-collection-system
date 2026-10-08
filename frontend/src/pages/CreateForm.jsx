@@ -1,38 +1,21 @@
 import { useState } from "react";
 import { apiRequest } from "../services/api";
+import AppShell from "../components/AppShell";
 
-const types = [
-  ["rating","Rating (1–5)"],
-  ["short","Short Answer"],
-  ["long","Long Answer"],
-  ["multiple-choice","Multiple Choice"],
-  ["yes-no","Yes / No"],
-];
+const types=[["rating","Rating (1–5)"],["short","Short Answer"],["long","Long Answer"],["multiple-choice","Multiple Choice"],["yes-no","Yes / No"]];
 
-export default function CreateForm() {
-  const [title,setTitle]=useState(""); const [description,setDescription]=useState("");
-  const [questions,setQuestions]=useState([{text:"",type:"rating",required:true,options:[]}]); const [message,setMessage]=useState("");
-  const update=(i,p)=>setQuestions(q=>q.map((x,n)=>n===i?{...x,...p}:x));
-  const add=()=>setQuestions(q=>[...q,{text:"",type:"short",required:false,options:[]}]);
-  const remove=i=>setQuestions(q=>q.filter((_,n)=>n!==i));
-  const submit=async e=>{e.preventDefault();setMessage("");
-    try{await apiRequest("/forms",{method:"POST",body:JSON.stringify({title,description,questions})});setMessage("Feedback form created successfully.");setTitle("");setDescription("");setQuestions([{text:"",type:"rating",required:true,options:[]}]);}
-    catch(err){setMessage(err.message);}
-  };
-  return <main className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8"><div className="mx-auto max-w-3xl rounded-2xl bg-white p-6 shadow-sm">
-    <button type="button" onClick={()=>window.location.href="/dashboard"} className="mb-4 text-sm text-indigo-600">← Dashboard</button>
-    <h1 className="text-2xl font-bold">Create Feedback Form</h1><p className="mt-1 text-sm text-slate-500">Build a form and start collecting responses.</p>
-    <form onSubmit={submit} className="mt-6 space-y-5">
-      <input className="w-full rounded-xl border p-3" placeholder="Form title" value={title} onChange={e=>setTitle(e.target.value)} required />
-      <textarea className="w-full rounded-xl border p-3" placeholder="Description" value={description} onChange={e=>setDescription(e.target.value)} rows="3"/>
-      {questions.map((q,i)=><div key={i} className="rounded-xl border p-4">
-        <div className="flex gap-2"><input className="flex-1 rounded-lg border p-3" placeholder={"Question "+(i+1)} value={q.text} onChange={e=>update(i,{text:e.target.value})} required/>{questions.length>1&&<button type="button" onClick={()=>remove(i)} className="rounded-lg border px-3 text-red-600">Remove</button>}</div>
-        <div className="mt-3 flex flex-col gap-3 sm:flex-row"><select className="rounded-lg border p-3" value={q.type} onChange={e=>update(i,{type:e.target.value})}>{types.map(([v,l])=><option key={v} value={v}>{l}</option>)}</select><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={q.required} onChange={e=>update(i,{required:e.target.checked})}/> Required</label></div>
-        {q.type==="multiple-choice"&&<input className="mt-3 w-full rounded-lg border p-3" placeholder="Options separated by commas" value={q.options.join(", ")} onChange={e=>update(i,{options:e.target.value.split(",").map(x=>x.trim()).filter(Boolean)})}/>}
-      </div>)}
-      <button type="button" onClick={add} className="rounded-xl border px-4 py-2 font-medium">+ Add Question</button>
-      {message&&<p className="text-sm text-indigo-700">{message}</p>}
-      <button className="w-full rounded-xl bg-indigo-600 px-4 py-3 font-semibold text-white">Create Form</button>
-    </form>
-  </div></main>;
+export default function CreateForm(){
+ const [title,setTitle]=useState(""),[description,setDescription]=useState(""),[questions,setQuestions]=useState([{text:"",type:"rating",required:true,options:[]}]),[message,setMessage]=useState("");
+ const update=(i,p)=>setQuestions(q=>q.map((x,n)=>n===i?{...x,...p}:x)),add=()=>setQuestions(q=>[...q,{text:"",type:"short",required:false,options:[]}]),remove=i=>setQuestions(q=>q.filter((_,n)=>n!==i));
+ const submit=async e=>{e.preventDefault();setMessage("");try{await apiRequest("/forms",{method:"POST",body:JSON.stringify({title,description,questions})});setMessage("Feedback form created successfully.");setTitle("");setDescription("");setQuestions([{text:"",type:"rating",required:true,options:[]}])}catch(err){setMessage(err.message)}};
+ return <AppShell title="Create Form"><div className="mx-auto max-w-4xl">
+  <div className="mb-6"><p className="text-sm font-semibold text-slate-400">Builder</p><h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">Create Feedback Form</h1><p className="mt-1 text-sm text-slate-500">Build a professional form and start collecting responses.</p></div>
+  <form onSubmit={submit} className="space-y-4">
+   <section className="rounded-2xl border bg-white p-5 shadow-sm sm:p-6"><h2 className="font-extrabold">Form Details</h2><div className="mt-4 grid gap-4"><input className="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-indigo-500" placeholder="Form title" value={title} onChange={e=>setTitle(e.target.value)} required/><textarea className="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-indigo-500" placeholder="Describe what this feedback form is about..." value={description} onChange={e=>setDescription(e.target.value)} rows="3"/></div></section>
+   {questions.map((q,i)=><section key={i} className="rounded-2xl border bg-white p-5 shadow-sm sm:p-6"><div className="flex items-center justify-between gap-3"><span className="rounded-full bg-indigo-50 px-2.5 py-1 text-[10px] font-bold text-indigo-600">Question {i+1}</span>{questions.length>1&&<button type="button" onClick={()=>remove(i)} className="text-xs font-bold text-rose-600">Remove</button>}</div><input className="mt-4 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-indigo-500" placeholder="Write your question..." value={q.text} onChange={e=>update(i,{text:e.target.value})} required/><div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto]"><select className="rounded-xl border border-slate-200 px-4 py-3 text-sm" value={q.type} onChange={e=>update(i,{type:e.target.value})}>{types.map(([v,l])=><option key={v} value={v}>{l}</option>)}</select><label className="flex items-center gap-2 rounded-xl bg-slate-50 px-4 text-xs font-semibold"><input type="checkbox" checked={q.required} onChange={e=>update(i,{required:e.target.checked})} className="accent-indigo-600"/> Required</label></div>{q.type==="multiple-choice"&&<input className="mt-3 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm" placeholder="Options separated by commas" value={q.options.join(", ")} onChange={e=>update(i,{options:e.target.value.split(",").map(x=>x.trim()).filter(Boolean)})}/>}</section>)}
+   <button type="button" onClick={add} className="w-full rounded-xl border border-dashed border-indigo-300 bg-indigo-50/50 px-4 py-3 text-sm font-bold text-indigo-600">+ Add Question</button>
+   {message&&<div className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700">{message}</div>}
+   <button className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-100">Create Form</button>
+  </form>
+ </div></AppShell>;
 }
