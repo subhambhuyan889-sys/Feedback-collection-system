@@ -14,6 +14,14 @@ const listForms = async (req,res) => {
   catch { res.status(500).json({success:false,message:"Unable to fetch feedback forms"}); }
 };
 
+const listMyForms = async (req,res) => {
+  try {
+    const filter = req.user.role === "admin" ? {} : { createdBy: req.user.id };
+    const forms = await FeedbackForm.find(filter).sort({createdAt:-1});
+    res.json({success:true,forms});
+  } catch { res.status(500).json({success:false,message:"Unable to fetch your feedback forms"}); }
+};
+
 const getForm = async (req,res) => {
   try { const form=await FeedbackForm.findById(req.params.id); if(!form) return res.status(404).json({success:false,message:"Form not found"}); res.json({success:true,form}); }
   catch { res.status(400).json({success:false,message:"Invalid form id"}); }
@@ -42,4 +50,4 @@ const deleteForm = async (req,res) => {
   } catch { res.status(500).json({success:false,message:"Unable to delete feedback form"}); }
 };
 
-module.exports={createForm,listForms,getForm,updateForm,deleteForm};
+module.exports={createForm,listForms,listMyForms,getForm,updateForm,deleteForm};
