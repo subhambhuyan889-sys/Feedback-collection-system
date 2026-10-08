@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 export default function AuthCallback() {
   const [message, setMessage] = useState("Signing you in with Google...");
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -14,6 +15,7 @@ export default function AuthCallback() {
       return;
     }
 
+    setFailed(Boolean(error));
     setMessage(error ? "Google login failed. Please try again." : "Completing Google login...");
   }, []);
 
@@ -23,7 +25,7 @@ export default function AuthCallback() {
         <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full bg-slate-950 font-bold text-white">F</div>
         <h1 className="text-xl font-bold">FeedbackHub</h1>
         <p className="mt-2 text-sm text-slate-500">{message}</p>
-        {error && (
+        {failed && (
           <a className="mt-6 inline-block rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white" href="/login">
             Back to login
           </a>
