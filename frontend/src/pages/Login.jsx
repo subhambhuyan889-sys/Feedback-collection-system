@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { apiRequest } from "../services/api";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://feedback-collection-backend.onrender.com/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://feedback-collection-system-d5te.onrender.com/api";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -23,7 +23,7 @@ export default function Login() {
   };
 
   const continueWithGoogle = () => {
-    window.location.href = `${API_BASE_URL}/auth/google`;
+    window.location.href = API_BASE_URL + "/auth/google";
   };
 
   return (
