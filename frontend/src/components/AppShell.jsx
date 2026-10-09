@@ -38,7 +38,10 @@ function Icon({ name, size = 17 }) {
 export default function AppShell({ children, title = "Workspace", admin = false }) {
   const [user, setUser] = useState(null);
   useEffect(() => { apiRequest("/auth/me").then(d => setUser(d.user)).catch(() => {}); }, []);
-  const nav = admin ? adminNav : studentNav;
+
+  // Keep the admin navigation consistent across every route, not just /admin.
+  const isAdmin = admin || user?.role === "admin";
+  const nav = isAdmin ? adminNav : studentNav;
   const active = window.location.pathname;
   const logout = () => { localStorage.removeItem("token"); window.location.href = "/"; };
 
@@ -47,15 +50,13 @@ export default function AppShell({ children, title = "Workspace", admin = false 
       <div className="flex min-h-screen">
         <aside className="hidden w-[248px] shrink-0 border-r border-slate-200 bg-[#fbfbfc] lg:flex lg:flex-col">
           <div className="flex h-[76px] items-center border-b border-slate-200/80 px-6">
-            <button onClick={() => window.location.href = admin ? "/admin" : "/dashboard"} className="flex items-center gap-3">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-slate-950 text-white shadow-sm">
-                <span className="text-sm font-black">F</span>
-              </span>
+            <button onClick={() => window.location.href = isAdmin ? "/admin" : "/dashboard"} className="flex items-center gap-3">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-slate-950 text-white shadow-sm"><span className="text-sm font-black">F</span></span>
               <span className="text-[17px] font-extrabold tracking-[-0.02em]">FeedPro</span>
             </button>
           </div>
           <div className="flex-1 px-3 py-6">
-            <p className="px-3 pb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">{admin ? "Administration" : "Workspace"}</p>
+            <p className="px-3 pb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">{isAdmin ? "Administration" : "Workspace"}</p>
             <nav className="space-y-1">
               {nav.map(([icon, label, path]) => {
                 const isActive = active === path;
@@ -75,10 +76,9 @@ export default function AppShell({ children, title = "Workspace", admin = false 
             <button onClick={logout} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-[12px] font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-900"><Icon name="logout" size={15}/>Sign out</button>
           </div>
         </aside>
-
         <section className="min-w-0 flex-1">
           <header className="sticky top-0 z-30 flex h-[68px] items-center justify-between border-b border-slate-200/80 bg-white/95 px-4 backdrop-blur sm:px-6 lg:px-9">
-            <div className="min-w-0"><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{admin ? "Admin workspace" : "Feedback workspace"}</p><h1 className="truncate text-[14px] font-bold text-slate-900">{title}</h1></div>
+            <div className="min-w-0"><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{isAdmin ? "Admin workspace" : "Feedback workspace"}</p><h1 className="truncate text-[14px] font-bold text-slate-900">{title}</h1></div>
             <div className="flex items-center gap-3">
               <button onClick={() => window.location.href="/settings"} aria-label="Settings" className="grid h-9 w-9 place-items-center rounded-full border border-slate-200 bg-white text-slate-500 hover:bg-slate-50"><Icon name="bell" size={16}/></button>
               <button onClick={() => window.location.href="/profile"} className="flex items-center gap-2 rounded-full border border-slate-200 bg-white py-1 pl-1 pr-2.5 hover:bg-slate-50">
